@@ -1,0 +1,21 @@
+fastapi
+uvicorn[standard]
+python-multipart
+Pillow
+requests
+python-dotenv
+numpy
+opencv-python
+pydicom
+nibabel
+SimpleITK
+ultralytics # For YOLO
+torch         # Or install via conda/pytorch.org for specific CUDA
+torchvision   #
+transformers  # For MedSAM/Hugging Face models
+accelerate    # Often needed with transformers
+monai[all]    # If using MONAI (includes its dependencies)
+aiohttp       # For async HTTP requests
+scipy         # For image processing operations
+# MedPy        # If needed
+# tensorflow   # If using TF models from MI2RLNet
