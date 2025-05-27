@@ -83,7 +83,7 @@ class SonarClient:
         else: # Default to professional
             return self._generate_base_prompt(scan_type, findings_text)
 
-    async def query_sonar(self, query_text: str, model: str = "sonar-medium-online") -> Dict[str, Any]:
+    async def query_sonar(self, query_text: str, model: str = "sonar-pro") -> Dict[str, Any]:
         if not self.api_key:
             logger.error("Cannot query Sonar: API key missing.")
             return {"error": "Sonar API key not configured."}
