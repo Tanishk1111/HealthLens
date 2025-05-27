@@ -159,15 +159,20 @@ class ModelOutputProcessor:
     def format_detection_result(
         class_name: str,
         confidence: float,
-        bbox: List[float],
+        bbox: Optional[List[float]],
         additional_info: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """Format a single detection result"""
         result = {
             'class_name': class_name,
-            'confidence': round(confidence, 4),
-            'bounding_box': [round(coord, 2) for coord in bbox]
+            'confidence': round(confidence, 4)
         }
+        
+        # Only add bounding box if provided (some models like TorchXRayVision don't provide boxes)
+        if bbox is not None:
+            result['bounding_box'] = [round(coord, 2) for coord in bbox]
+        else:
+            result['bounding_box'] = None
         
         if additional_info:
             result.update(additional_info)

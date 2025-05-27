@@ -1,0 +1,306 @@
+# HealthLens Medical AI Project .gitignore
+
+# === Python ===
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# === Environment Variables ===
+.env
+.env.local
+.env.production
+.env.staging
+.env.test
+*.env
+
+# === IDE / Editor ===
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# === AI/ML Specific ===
+# Model files (large binary files)
+*.pt
+*.pth
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+*.onnx
+*.pb
+*.tflite
+*.mlmodel
+
+# Model directories
+models/
+weights/
+checkpoints/
+saved_models/
+model_cache/
+.torch/
+
+# TorchXRayVision cache
+*.xrv
+
+# Datasets (usually too large for git)
+data/
+datasets/
+raw_data/
+processed_data/
+train_data/
+test_data/
+validation_data/
+medical_scans/
+dicom_files/
+nifti_files/
+
+# === Medical Data (HIPAA/Privacy) ===
+# Medical image files
+*.dcm
+*.dicom
+*.nii
+*.nii.gz
+*.mhd
+*.raw
+*.img
+*.hdr
+
+# Medical data directories
+patient_data/
+clinical_data/
+protected_health_info/
+phi/
+anonymized_data/
+
+# === Logs ===
+logs/
+*.log
+*.log.*
+log_*.txt
+
+# === FastAPI / Web ===
+# Static files
+static/
+media/
+uploads/
+temp/
+tmp/
+
+# === System Files ===
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# === Temporary Files ===
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.cache
+
+# === Configuration ===
+config.json
+config.yaml
+config.yml
+settings.json
+secrets.json
+api_keys.txt
+
+# === Documentation ===
+docs/_build/
+.sphinx/
+
+# === Package Manager ===
+# pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# === Cloud Storage ===
+# AWS
+.aws/
+
+# Google Cloud
+.gcloud/
+gcloud_credentials.json
+
+# Azure
+.azure/
+
+# === Docker ===
+Dockerfile.local
+docker-compose.override.yml
+.dockerignore
+
+# === Database ===
+*.db
+*.sqlite
+*.sqlite3
+database.db
+
+# === Testing ===
+test_results.txt
+test_output/
+screenshots/
+test_*.png
+test_*.jpg
+
+# === Certificates ===
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# === Backup files ===
+*.backup
+*.bak
+*.old
+*.orig
+
+# === Large files / Archives ===
+*.zip
+*.tar.gz
+*.tar
+*.rar
+*.7z
+
+# === Node.js (if using any frontend) ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === Custom Project Specific ===
+# API testing files with real data
+test_with_real_data.py
+real_scan_test.py
+
+# Benchmark results
+benchmark_results/
+performance_logs/
+
+# Local development scripts
+dev_*.py
+local_*.py
+
+# Perplexity API responses cache
+sonar_cache/
+api_responses/
+
+# Custom model training outputs
+training_outputs/
+tensorboard_logs/
+wandb/
+
+# === Keep these files ===
+!.gitkeep
+!README.md
+!requirements.txt
+!env.example 
