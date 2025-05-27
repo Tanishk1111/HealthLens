@@ -13,5 +13,5 @@ torch # Install from pytorch.org for specific CUDA version if needed
 torchvision # Install with torch
 torchxrayvision
 TotalSegmentator
-monai[all] # Installs MONAI with common dependencies including nibabel, Pillow, etc.
+monai>=1.3.0 # Simplified MONAI installation first
 # accelerate # Often useful with Hugging Face Transformers if you add such models
