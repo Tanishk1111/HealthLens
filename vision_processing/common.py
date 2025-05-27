@@ -1,239 +1,107 @@
-"""
-Common utilities for vision processing in HealthLens.
-"""
-
-import io
+# vision_processing/common.py
 import logging
-from typing import Dict, List, Any, Tuple, Optional
-import numpy as np
+import io
 from PIL import Image
-import cv2
+import numpy as np
+from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
 
-class ScanTypeValidator:
-    """Validates and categorizes medical scan types"""
-    
-    def __init__(self):
-        self.supported_2d_types = {
-            'xray_chest_2d': 'Chest X-ray',
-            'xray_abdomen_2d': 'Abdominal X-ray',
-            'xray_bone_2d': 'Bone X-ray',
-            'ultrasound_abdomen_2d': 'Abdominal Ultrasound',
-            'ultrasound_cardiac_2d': 'Cardiac Ultrasound',
-            'ultrasound_obstetric_2d': 'Obstetric Ultrasound',
-            'mammography_2d': 'Mammography',
-            'fundus_2d': 'Fundus Photography',
-            'dermatology_2d': 'Dermatological Image',
-            'endoscopy_2d': 'Endoscopic Image'
-        }
-        
-        self.supported_3d_types = {
-            'ct_chest_3d': 'Chest CT Scan',
-            'ct_abdomen_3d': 'Abdominal CT Scan',
-            'ct_brain_3d': 'Brain CT Scan',
-            'ct_spine_3d': 'Spine CT Scan',
-            'mri_brain_3d': 'Brain MRI',
-            'mri_spine_3d': 'Spine MRI',
-            'mri_cardiac_3d': 'Cardiac MRI',
-            'mri_abdomen_3d': 'Abdominal MRI',
-            'pet_ct_3d': 'PET-CT Scan',
-            'spect_3d': 'SPECT Scan'
-        }
-    
-    def is_valid_scan_type(self, scan_type: str) -> bool:
-        """Check if scan type is supported"""
-        return scan_type in self.supported_2d_types or scan_type in self.supported_3d_types
-    
-    def is_3d_scan_type(self, scan_type: str) -> bool:
-        """Check if scan type is 3D"""
-        return scan_type in self.supported_3d_types
-    
-    def get_supported_types(self) -> Dict[str, str]:
-        """Get all supported scan types"""
-        return {**self.supported_2d_types, **self.supported_3d_types}
-    
-    def get_2d_types(self) -> Dict[str, str]:
-        """Get supported 2D scan types"""
-        return self.supported_2d_types.copy()
-    
-    def get_3d_types(self) -> Dict[str, str]:
-        """Get supported 3D scan types"""
-        return self.supported_3d_types.copy()
-    
-    def get_scan_description(self, scan_type: str) -> str:
-        """Get human-readable description of scan type"""
-        all_types = self.get_supported_types()
-        return all_types.get(scan_type, "Unknown scan type")
+class BaseImageProcessor:
+    """Basic image processing utilities."""
 
-class ImageProcessor:
-    """Common image processing utilities"""
-    
-    def __init__(self):
-        self.supported_2d_formats = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif'}
-        self.supported_3d_formats = {'.nii', '.nii.gz', '.dcm', '.dicom'}
-    
-    def validate_file_format(self, filename: str, is_3d: bool = False) -> bool:
-        """Validate if file format is supported"""
-        filename_lower = filename.lower()
-        
-        if is_3d:
-            return any(filename_lower.endswith(fmt) for fmt in self.supported_3d_formats)
-        else:
-            return any(filename_lower.endswith(fmt) for fmt in self.supported_2d_formats)
-    
-    def load_2d_image(self, image_bytes: bytes) -> np.ndarray:
-        """Load 2D image from bytes"""
+    def load_image_to_pil(self, image_bytes: bytes) -> Optional[Image.Image]:
+        """Loads image bytes into a PIL Image object."""
         try:
-            # Load with PIL first
             pil_image = Image.open(io.BytesIO(image_bytes))
-            
-            # Convert to RGB if needed
-            if pil_image.mode != 'RGB':
-                pil_image = pil_image.convert('RGB')
-            
-            # Convert to numpy array
-            image_array = np.array(pil_image)
-            
-            logger.info(f"Loaded 2D image with shape: {image_array.shape}")
-            return image_array
-            
+            return pil_image
         except Exception as e:
-            logger.error(f"Error loading 2D image: {e}")
-            raise ValueError(f"Failed to load 2D image: {e}")
-    
-    def preprocess_2d_image(self, image: np.ndarray, target_size: Tuple[int, int] = (512, 512)) -> np.ndarray:
-        """Preprocess 2D image for model inference"""
+            logger.error(f"Error loading image to PIL: {e}")
+            return None
+
+    def pil_to_numpy(self, pil_image: Image.Image, mode: str = 'RGB') -> Optional[np.ndarray]:
+        """Converts PIL image to NumPy array, optionally converting mode."""
         try:
-            # Resize image
-            if image.shape[:2] != target_size:
-                image = cv2.resize(image, target_size)
-            
-            # Normalize to [0, 1]
-            if image.dtype == np.uint8:
-                image = image.astype(np.float32) / 255.0
-            
-            # Ensure 3 channels
-            if len(image.shape) == 2:
-                image = np.stack([image] * 3, axis=-1)
-            elif image.shape[2] == 1:
-                image = np.repeat(image, 3, axis=2)
-            
-            return image
-            
+            if pil_image.mode != mode and mode is not None:
+                pil_image = pil_image.convert(mode)
+            return np.array(pil_image)
         except Exception as e:
-            logger.error(f"Error preprocessing 2D image: {e}")
-            raise ValueError(f"Failed to preprocess 2D image: {e}")
-    
+            logger.error(f"Error converting PIL to NumPy: {e}")
+            return None
+
     def extract_image_metadata(self, image_bytes: bytes, filename: str) -> Dict[str, Any]:
-        """Extract metadata from image"""
-        try:
-            pil_image = Image.open(io.BytesIO(image_bytes))
-            
-            metadata = {
-                'filename': filename,
-                'format': pil_image.format,
-                'mode': pil_image.mode,
-                'size': pil_image.size,
-                'file_size_bytes': len(image_bytes)
-            }
-            
-            # Extract EXIF data if available
-            if hasattr(pil_image, '_getexif') and pil_image._getexif():
-                metadata['exif'] = dict(pil_image._getexif())
-            
-            return metadata
-            
-        except Exception as e:
-            logger.warning(f"Could not extract image metadata: {e}")
+        """Extracts basic metadata from image bytes using PIL."""
+        pil_image = self.load_image_to_pil(image_bytes)
+        if pil_image:
             return {
-                'filename': filename,
-                'file_size_bytes': len(image_bytes),
-                'error': str(e)
+                "filename": filename,
+                "format": pil_image.format,
+                "mode": pil_image.mode,
+                "width": pil_image.width,
+                "height": pil_image.height,
+                "size_bytes": len(image_bytes)
             }
+        return {"filename": filename, "error": "Could not extract metadata"}
 
-class ModelOutputProcessor:
-    """Process and format model outputs"""
-    
-    @staticmethod
+
+class BaseModelOutputProcessor:
+    """Processes and formats model outputs."""
+
     def format_detection_result(
-        class_name: str,
-        confidence: float,
-        bbox: Optional[List[float]],
+        self, 
+        class_name: str, 
+        confidence: float, 
+        bbox: Optional[List[float]] = None, 
+        segmentation_info: Optional[Any] = None, # e.g., path to mask file
         additional_info: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Format a single detection result"""
         result = {
-            'class_name': class_name,
-            'confidence': round(confidence, 4)
+            "class_name": class_name,
+            "confidence": round(confidence, 4), # Standardize confidence format
+            "bounding_box": bbox if bbox else "N/A",
+            "segmentation_info": segmentation_info if segmentation_info else "N/A"
         }
-        
-        # Only add bounding box if provided (some models like TorchXRayVision don't provide boxes)
-        if bbox is not None:
-            result['bounding_box'] = [round(coord, 2) for coord in bbox]
-        else:
-            result['bounding_box'] = None
-        
         if additional_info:
             result.update(additional_info)
-        
         return result
-    
-    @staticmethod
+
     def filter_detections_by_confidence(
-        detections: List[Dict[str, Any]], 
-        threshold: float = 0.5
+        self, detections: List[Dict[str, Any]], threshold: float
     ) -> List[Dict[str, Any]]:
-        """Filter detections by confidence threshold"""
-        return [det for det in detections if det.get('confidence', 0) >= threshold]
-    
-    @staticmethod
+        return [d for d in detections if d.get('confidence', 0.0) >= threshold]
+
     def sort_detections_by_confidence(
-        detections: List[Dict[str, Any]], 
-        descending: bool = True
+        self, detections: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Sort detections by confidence"""
-        return sorted(
-            detections, 
-            key=lambda x: x.get('confidence', 0), 
-            reverse=descending
-        )
-    
-    @staticmethod
-    def group_detections_by_class(
-        detections: List[Dict[str, Any]]
-    ) -> Dict[str, List[Dict[str, Any]]]:
-        """Group detections by class name"""
-        grouped = {}
-        for detection in detections:
-            class_name = detection.get('class_name', 'unknown')
-            if class_name not in grouped:
-                grouped[class_name] = []
-            grouped[class_name].append(detection)
-        return grouped
-    
-    @staticmethod
-    def calculate_detection_statistics(
-        detections: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
-        """Calculate statistics for detections"""
-        if not detections:
-            return {
-                'total_detections': 0,
-                'unique_classes': 0,
-                'avg_confidence': 0,
-                'max_confidence': 0,
-                'min_confidence': 0
-            }
+        return sorted(detections, key=lambda x: x.get('confidence', 0.0), reverse=True)
+
+    def summarize_output(self, vision_results: Dict[str, Any]) -> str:
+        """Creates a simple textual summary of vision results for Sonar."""
+        summary_parts = []
         
-        confidences = [det.get('confidence', 0) for det in detections]
-        unique_classes = set(det.get('class_name', 'unknown') for det in detections)
+        model_used = vision_results.get("metadata", {}).get("model_used", "Unknown model")
+        summary_parts.append(f"Analysis performed using {model_used}.")
+
+        detections = vision_results.get("detections")
+        if detections:
+            summary_parts.append("Key findings include:")
+            for det in detections[:3]: # Summarize top 3 for brevity
+                name = det.get('class_name', 'Unknown finding')
+                conf = det.get('confidence', 0.0)
+                summary_parts.append(f"- {name} (confidence: {conf:.2f})")
+            if len(detections) > 3:
+                summary_parts.append(f"...and {len(detections) - 3} other findings.")
         
-        return {
-            'total_detections': len(detections),
-            'unique_classes': len(unique_classes),
-            'class_names': list(unique_classes),
-            'avg_confidence': round(np.mean(confidences), 4),
-            'max_confidence': round(max(confidences), 4),
-            'min_confidence': round(min(confidences), 4)
-        } 
+        segmented_structures = vision_results.get("segmented_structures")
+        if segmented_structures:
+            if isinstance(segmented_structures, list):
+                 summary_parts.append(f"Segmented structures: {', '.join(segmented_structures)}.")
+            else: # If it's a path or other info
+                summary_parts.append(f"Segmentation output generated: {segmented_structures}.")
+        
+        if not detections and not segmented_structures and "error" not in vision_results:
+            summary_parts.append("No specific anomalies or structures highlighted by the model based on current thresholds.")
+        elif "error" in vision_results:
+            summary_parts.append(f"An error occurred during vision processing: {vision_results['error']}")
+            
+        return " ".join(summary_parts)

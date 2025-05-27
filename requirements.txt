@@ -5,17 +5,13 @@ Pillow
 requests
 python-dotenv
 numpy
-opencv-python
+opencv-python-headless # Use headless if you don't need GUI components
 pydicom
 nibabel
-SimpleITK
-ultralytics # For YOLO
-torch         # Or install via conda/pytorch.org for specific CUDA
-torchvision   #
-transformers  # For MedSAM/Hugging Face models
-accelerate    # Often needed with transformers
-monai[all]    # If using MONAI (includes its dependencies)
-aiohttp       # For async HTTP requests
-scipy         # For image processing operations
-# MedPy        # If needed
-# tensorflow   # If using TF models from MI2RLNet
+# SimpleITK # Uncomment if you decide to use it for advanced DICOM/NIfTI handling
+torch # Install from pytorch.org for specific CUDA version if needed
+torchvision # Install with torch
+torchxrayvision
+TotalSegmentator
+monai[all] # Installs MONAI with common dependencies including nibabel, Pillow, etc.
+# accelerate # Often useful with Hugging Face Transformers if you add such models
